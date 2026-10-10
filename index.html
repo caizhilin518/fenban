@@ -413,17 +413,23 @@ function finishAssign(){
 /* ---------- 5. 导出结果 ---------- */
 function downloadRoster(){
   if(!RESULT){alert('请先完成分班');return;}
-  var aoa=[['班级','序号','姓名','性别']];
+  // 明细表：序号 | 姓名 | 性别 | 班级（班级放在性别右侧）
+  var aoa=[['序号','姓名','性别','班级']];
+  var summary=[['班级','男生','女生','总人数']];
   for(var i=0;i<RESULT.classes.length;i++){
     var c=RESULT.classes[i],all=c.boys.concat(c.girls),idx=1;
     for(var j=0;j<all.length;j++){
-      aoa.push(['一年级('+(i+1)+')班',idx++,all[j].name,all[j].gender===1?'男':'女']);
+      aoa.push([idx++, all[j].name, all[j].gender===1?'男':'女', '一年级('+(i+1)+')班']);
     }
-    aoa.push(['一年级('+(i+1)+')班','',c.boys.length+'男/'+c.girls.length+'女','']);
+    summary.push(['一年级('+(i+1)+')班', c.boys.length, c.girls.length, c.boys.length+c.girls.length]);
   }
-  var ws=XLSX.utils.aoa_to_sheet(aoa);
   var wb=XLSX.utils.book_new();
+  var ws=XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols']=[{wch:6},{wch:14},{wch:6},{wch:14}];   // 列宽
   XLSX.utils.book_append_sheet(wb,ws,'分班结果');
+  var ws2=XLSX.utils.aoa_to_sheet(summary);
+  ws2['!cols']=[{wch:14},{wch:8},{wch:8},{wch:9}];
+  XLSX.utils.book_append_sheet(wb,ws2,'班级汇总');
   var buf=XLSX.write(wb,{bookType:'xlsx',type:'array'});
   var blob=new Blob([buf],{type:'application/octet-stream'});
   var link=document.createElement('a');
