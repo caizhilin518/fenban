@@ -148,13 +148,37 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <script>// 光华路小学 新生分班系统 —— 应用逻辑
 // 班级数可配置 / 真实Excel导入 / 内置预设锁定 / 男女比例均衡算法 / 结果导出
 
-// ★★★ 内置预设名单 ★★★
-// 分班前由学校把「必须指定到某班的学生」填在这里，然后重新部署即可。
-// 格式：{name:'张三', cls:2}  表示张三固定分到第2班；cls 从 1 开始。
-// 留空 = 全部由系统按男女比例自动均衡分配。
-var PRESET = [
-  // 例：{name:'张三', cls:1, why:'教师子女随班'},
-];
+// ★★★ 预设名单：从网络读取 school 服务器上的 xs.txt ★★★
+// 分班前只需在服务器上编辑 xs.txt（格式：姓名,班级号），本程序会自动读取最新内容。
+// 注意：读取失败时程序会拒绝分班（避免在缺少预设的情况下静默分错）。
+var PRESET_URL = 'https://caizhilin.site/fenban/xs.txt';
+var PRESET = [];              // [{name:'张三', cls:1}, ...]
+var PRESET_STATE = 'loading'; // loading | ok | fail
+
+function parsePreset(txt){
+  var out=[];
+  (txt||'').split(/\r?\n/).forEach(function(line){
+    var s=line.replace(/^\s+|\s+$/g,'');
+    if(!s||s.charAt(0)==='#')return;
+    var p=s.split(/[,，\t;；]/);
+    var name=(p[0]||'').replace(/^\s+|\s+$/g,'');
+    var cls=parseInt(p[1],10);
+    if(name&&cls>0&&cls<=20) out.push({name:name,cls:cls});
+  });
+  return out;
+}
+
+function loadPreset(){
+  // 加超时保护：网络不通时快速失败，不要让页面一直卡在"正在获取配置"
+  var ctl = (typeof AbortController!=='undefined') ? new AbortController() : null;
+  var timer = setTimeout(function(){ if(ctl) ctl.abort(); }, 8000);
+  var opt = {cache:'no-store'};
+  if(ctl) opt.signal = ctl.signal;
+  return fetch(PRESET_URL+'?_='+Date.now(), opt)
+    .then(function(r){ clearTimeout(timer); if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+    .then(function(t){ PRESET=parsePreset(t); PRESET_STATE='ok'; return PRESET; })
+    .catch(function(e){ clearTimeout(timer); PRESET=[]; PRESET_STATE='fail'; throw e; });
+}
 
 var ROSTER = [];          // 导入的名册 [{name, gender}]  gender:1=男 2=女
 var RESULT = null;        // 分班结果 {classes:[{no,boys,girls}], presetHit:[]}
@@ -349,6 +373,8 @@ function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()
 
 /* ---------- 4. 分班按钮 ---------- */
 function doAssign(){
+  // 配置未就绪则拒绝分班（宁可分不成，也不能在缺配置时出错误结果）
+  if(PRESET_STATE!=='ok'){alert('暂时无法完成分班，请检查网络后刷新页面重试。');return;}
   if(!ROSTER.length){alert('请先导入名册');return;}
   var n=parseInt(document.getElementById('classNo').value,10);
   if(!(n>=2&&n<=20)){alert('班级数请填 2 到 20 之间');return;}
@@ -476,7 +502,20 @@ function setClassNo(delta){
   el.value=v;
   renderClassCards();
 }
-window.addEventListener('load',function(){ renderClassCards(); });
+
+/* ---------- 8. 启动：先取配置，再开放分班 ---------- */
+window.addEventListener('load',function(){
+  renderClassCards();
+  var note=document.getElementById('importNote');
+  note.textContent='正在获取分班配置…';
+  loadPreset().then(function(){
+    note.innerHTML='① 设置班级数 → ② 导入名册（Excel，含姓名、性别） → ③ 开始分班 → ④ 下载结果';
+  }).catch(function(){
+    // 关键：取不到配置就拒绝分班，绝不在缺配置的情况下静默出结果
+    PRESET_STATE='fail';
+    note.innerHTML='⚠️ 暂时无法完成分班，请检查网络后刷新页面重试。';
+  });
+});
 </script>
 </body>
 </html>
