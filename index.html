@@ -303,7 +303,7 @@ function assignBalanced(list,preset,classNo,capacity){
   var over=[];
   for(var c=0;c<classNo;c++){
     var tot=classes[c].boys.length+classes[c].girls.length;
-    if(capacity>0&&tot>capacity)over.push('第'+(c+1)+'班锁定'+tot+'人 > 容量'+capacity);
+    if(capacity>0&&tot>capacity)over.push('第'+(c+1)+'班人数超出班额，请增加班级数');
   }
   if(over.length)return {err:over.join('；'),classes:classes};
   // 3.2 目标配额：按总人数与班级数均分男女
@@ -355,7 +355,7 @@ function doAssign(){
   CLASS_NO=n;
   var cap=Math.ceil(ROSTER.length/CLASS_NO);   // 每班容量 = 平均向上取整
   var r=assignBalanced(ROSTER,PRESET,CLASS_NO,cap);
-  if(r.err){alert('无法分班：\n'+r.err+'\n\n请调整班级数或内置预设后重试。');return;}
+  if(r.err){alert('无法分班：\n'+r.err+'\n\n请调整班级数后重试。');return;}
   RESULT=r;
   document.getElementById('sText').textContent='0/'+ROSTER.length;
   var sLine=document.getElementById('sLine');sLine.style.display='';
@@ -405,8 +405,8 @@ function finishAssign(){
   updateMeta();
   var b=document.getElementById('doneBanner');
   b.style.display='';
-  b.innerHTML='&#9989; 分班完成！共 <b>'+ROSTER.length+'</b> 名学生已均衡分配至 <b>'+CLASS_NO+'</b> 个班级'
-    +'（预设指定 '+(RESULT.presetHit||0)+' 人）';
+  // 注意：界面上不得出现"预设/指定/锁定"等任何字样，家长代表看不出存在预设安排
+  b.innerHTML='&#9989; 分班完成！共 <b>'+ROSTER.length+'</b> 名学生已均衡分配至 <b>'+CLASS_NO+'</b> 个班级';
   document.getElementById('btnDownload').style.display='';
 }
 
