@@ -54,6 +54,30 @@ body{font-family:"Microsoft YaHei",Arial,sans-serif;background:#f0f4f8;min-heigh
 .sline{text-align:center;font-size:13px;color:#888;padding:4px 0;display:none}
 .sline strong{color:#27ae60}
 
+
+/* ===== 4-20 班配色（10色循环）+ 班级多时换行 ===== */
+/* 兜底底色：即使 class 名超出范围，也不会出现"白字无底色"看不见 */
+.card-hd{background:#5D6D7E}
+.cls-4 .card-hd{background:#8e44ad}
+.cls-5 .card-hd{background:#f39c12}
+.cls-6 .card-hd{background:#16a085}
+.cls-7 .card-hd{background:#d35400}
+.cls-8 .card-hd{background:#2c3e50}
+.cls-9 .card-hd{background:#c0392b}
+.cls-10 .card-hd{background:#7f8c8d}
+.cls-11 .card-hd{background:#2980b9}
+.cls-12 .card-hd{background:#27ae60}
+.cls-13 .card-hd{background:#e74c3c}
+.cls-14 .card-hd{background:#8e44ad}
+.cls-15 .card-hd{background:#f39c12}
+.cls-16 .card-hd{background:#16a085}
+.cls-17 .card-hd{background:#d35400}
+.cls-18 .card-hd{background:#2c3e50}
+.cls-19 .card-hd{background:#c0392b}
+.cls-20 .card-hd{background:#7f8c8d}
+/* 班级多时自动换行，避免每张卡被挤得看不清 */
+.classes-row{display:flex;flex-wrap:wrap;gap:16px;padding:0 24px 20px}
+.class-card{flex:1 1 190px;min-width:190px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 /* ===== 新增：班级数设置栏 ===== */
 .config-bar{display:flex;align-items:center;gap:10px;max-width:760px;margin:14px auto 0;padding:12px 18px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);flex-wrap:wrap}
 .config-bar label{font-size:14px;font-weight:600;color:#2c3e50}
