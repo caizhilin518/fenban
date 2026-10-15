@@ -524,11 +524,24 @@ function downloadRoster(){
   var ws2=XLSX.utils.aoa_to_sheet(summary);
   ws2['!cols']=[{wch:14},{wch:8},{wch:8},{wch:9}];
   XLSX.utils.book_append_sheet(wb,ws2,'班级汇总');
-  var buf=XLSX.write(wb,{bookType:'xlsx',type:'array'});
-  var blob=new Blob([buf],{type:'application/octet-stream'});
+
+  var fname='一年级分班结果.xlsx';
+  var b64=XLSX.write(wb,{bookType:'xlsx',type:'base64'});
+
+  // 桌面版（pywebview / WebView2 会静默拦截 blob 下载 → 走 Python 后端直接落盘到桌面）
+  if(window.pywebview && window.pywebview.api && window.pywebview.api.save_xlsx){
+    window.pywebview.api.save_xlsx(b64, fname).then(function(r){
+      if(r && r.ok){ alert('已保存到\n'+r.path); }
+    });
+    return;
+  }
+  // 网页版：原 blob 链接下载
+  var bin=atob(b64),len=bin.length,bytes=new Uint8Array(len);
+  for(var i=0;i<len;i++) bytes[i]=bin.charCodeAt(i);
+  var blob=new Blob([bytes],{type:'application/octet-stream'});
   var link=document.createElement('a');
   link.href=URL.createObjectURL(blob);
-  link.download='一年级分班结果.xlsx';
+  link.download=fname;
   document.body.appendChild(link);link.click();document.body.removeChild(link);
 }
 
