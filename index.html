@@ -179,6 +179,20 @@ function parsePreset(txt){
 }
 
 function loadPreset(){
+  // 桌面版（配套「预设.exe」）：优先读与分班 exe 同目录的本地 xs.txt（明文），没有再回退到网络
+  if(window.pywebview && window.pywebview.api && window.pywebview.api.get_local_preset){
+    return window.pywebview.api.get_local_preset().then(function(r){
+      if(r && r.found && r.text){
+        PRESET = parsePreset(r.text);
+        PRESET_STATE = 'ok';
+        return PRESET;
+      }
+      return loadPresetRemote();
+    }).catch(function(){ return loadPresetRemote(); });
+  }
+  return loadPresetRemote();
+}
+function loadPresetRemote(){
   // 加超时保护：网络不通时快速失败，不要让页面一直卡在"正在获取配置"
   var ctl = (typeof AbortController!=='undefined') ? new AbortController() : null;
   var timer = setTimeout(function(){ if(ctl) ctl.abort(); }, 8000);
