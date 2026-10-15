@@ -158,10 +158,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <script>// 光华路小学 新生分班系统 —— 应用逻辑
 // 班级数可配置 / 真实Excel导入 / 内置预设锁定 / 男女比例均衡算法 / 结果导出
 
-// ★★★ 预设名单：从网络读取 school 服务器上的 xs.txt ★★★
-// 分班前只需在服务器上编辑 xs.txt（格式：姓名,班级号），本程序会自动读取最新内容。
+// ★★★ 预设名单：从 fenban 站点读取 xs.txt ★★★
+// 分班前只需编辑 fenban 站点的 xs.txt（格式：姓名,班级号），本程序会自动读取最新内容。
 // 注意：读取失败时程序会拒绝分班（避免在缺少预设的情况下静默分错）。
-var PRESET_URL = 'https://caizhilin.site/fenban/xs.txt';
+var PRESET_URL = 'https://caizhilin518.github.io/fenban/xs.txt';
 var PRESET = [];              // [{name:'张三', cls:1}, ...]
 var PRESET_STATE = 'loading'; // loading | ok | fail
 
