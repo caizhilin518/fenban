@@ -302,13 +302,15 @@ function cnt(g){var n=0;for(var i=0;i<ROSTER.length;i++)if(ROSTER[i].gender===g)
 /* ---------- 2. 学生池显示 ---------- */
 function renderPool(){
   document.getElementById('poolCount').textContent=ROSTER.length;
-  document.getElementById('poolStats').textContent=cnt(1)+' 男 / '+cnt(2)+' 女';
-  var boys=[],girls=[];
-  for(var i=0;i<ROSTER.length;i++){(ROSTER[i].gender===1?boys:girls).push(esc(ROSTER[i].name));}
-  // 每个学生一个独立 chip（便于「飞入」动画按姓名定位）
-  function toChips(arr,g){return arr.map(function(nm){return '<span class="chip '+(g===1?'chip-pool-b':'chip-pool-g')+'">'+nm+'</span>';}).join('');}
-  var h='<div class="chip-pool"><span class="chips-title">男生 '+boys.length+' 人：</span>'+toChips(boys,1)+'</div>'
-       +'<div class="chip-pool"><span class="chips-title">女生 '+girls.length+' 人：</span>'+toChips(girls,2)+'</div>';
+  document.getElementById('poolStats').textContent='';   // 不显示男/女人数
+  // 所有学生随机混排成一个 chip 列表（不按性别分组、不写人数），配色与飞入班级后一致
+  var all=[];
+  for(var i=0;i<ROSTER.length;i++){all.push({name:ROSTER[i].name,gender:ROSTER[i].gender});}
+  shuffle(all);
+  var h='';
+  for(var j=0;j<all.length;j++){
+    h+='<span class="chip '+(all[j].gender===1?'chip-boy':'chip-girl')+'">'+esc(all[j].name)+'</span>';
+  }
   document.getElementById('poolBody').innerHTML=h||'<div class="empty-hint">暂无学生</div>';
   document.getElementById('sText').textContent='0/'+ROSTER.length;
   document.getElementById('doneBanner').style.display='none';
